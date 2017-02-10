@@ -1,2 +1,2 @@
-# NGS---Python-code
-Wizarding NGS data with Python
+# NGS---pipeline-code
+Wizarding NGS data
