@@ -1,0 +1,29 @@
+###Trimming germline vcf files###
+
+#count total variants
+vcftools --vcf my_vcf.vcf --counts
+
+#trim out everything with a filter other than pass to new vcf with prefix. quality.filtered
+vcftools --vcf my_vcf.vcf --remove-filtered-all --recode --out quality.filtered
+
+#annotate with annovar
+perl convert2annovar.pl --format vcf4 -allsample -withfreq --includeinfo /Volumes/NakamuraLAB/Human_exomes/nakamuraj/150414_D00108_0345_BC6GFRANXX_Project_nakamuraj-JN1/Align_Ivan/QS/germline/QS.UG.snps.quality.vcf > QS.UG.snps.quality.annovar
+
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar refGene humandb/
+
+perl annotate_variation.pl -buildver hg19 -downdb cytoBand humandb/
+
+perl annotate_variation.pl -buildver hg19 -downdb genomicSuperDups humandb/ 
+
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar esp6500siv2_all humandb/
+
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar 1000g2014oct humandb/
+
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar snp138 humandb/ 
+
+perl annotate_variation.pl -buildver hg19 -downdb -webfrom annovar ljb26_all humandb/
+
+perl table_annovar.pl SS.UG.snps.quality.annovar humandb/ -buildver hg19 -out myanno -remove -protocol refGene,cytoBand,genomicSuperDups,esp6500siv2_all,1000g2014oct_all,1000g2014oct_afr,1000g2014oct_eas,1000g2014oct_eur,snp138,ljb26_all -operation g,r,r,f,f,f,f,f,f,f -nastring . -csvout
+
+hg19 	clinvar_20140929
+cosmic70
