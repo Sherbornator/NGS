@@ -1,0 +1,47 @@
+### 1. Running cufflinks - assemble genes and transcripts###
+
+cufflinks -o SS_lowq ../tophat/tophat_SS2b_lowq/accepted_hits.bam
+
+
+
+### 2. Make assemblies.txt file###
+
+/Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/QS_lowq/transcripts.gtf
+/Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/SS2b_lowq/transcripts.gtf
+
+###Run cuffmerge to create a single transcriptome analysis for your project###
+
+cuffmerge -o cuffmerge_lowq -g /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/Ensembl/GRCh37/Annotation/Archives/archive-2015-07-17-14-31-42/Genes/genes.gtf -s /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/Ensembl/GRCh37/Sequence/WholeGenomeFasta/genome.fa -p 8 assemblies.txt
+
+###Had issues with cuffmerge not recognising the names of chromosomes in the Ensembl annotation. Unpacked the UCSC hg19 annotation instead###
+
+cuffmerge -o cuffmerge_lowq_UCSC -g /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes.gtf -s /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -p 8 assemblies.txt
+
+### -g points to an (optional) reference annontation gtf
+### -s points to the ref sequence .fa
+
+
+
+### 3. Run cuffdiff to find differentially expressed genes and transcripts###
+
+cuffdiff -o cuffdiff_out_lowq -b /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -p 8 -L QS_lowq,SS2b_lowq -u /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/cuffmerge_lowq_UCSC/merged.gtf /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_QS_lowq/accepted_hits.bam /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_SS2b_lowq/accepted_hits.bam
+-L QS_lowq,SS2b_lowq -> gives sample names
+
+###Got a segmentation (memory) error###
+###Try without labels###
+cuffdiff -o cuffdiff_out_lowq -b /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa -p 8 -u /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/cuffmerge_lowq_UCSC/merged.gtf /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_QS_lowq/accepted_hits.bam /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_SS2b_lowq/accepted_hits.bam
+
+###Try converting bam to sam###
+cuffdiff -o cuffdiff_out_lowq -b /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/annotations/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome.fa /Volumes/NakamuraLAB/Human_exomes/RNAseq/cufflinks/cuffmerge_lowq_UCSC/merged.gtf /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_QS_lowq/accepted_hits_QS_lowq.sam /Volumes/NakamuraLAB/Human_exomes/RNAseq/tophat/tophat_SS2b_lowq/accepted_hits_SS2b_lowq.sam
+
+### 4. Visualizing with R###
+
+R
+library(cummeRbund)
+cuff_data <- readCufflinks('cuffdiff_out_lowq')
+csDensity(genes(cuff_data))
+csScatter(genes(cuff_data), 'QS_lowq', 'SS2b_lowq')
+csVolcano(genes(cuff_data), 'QS_lowq', 'SS2b_lowq')
+
+tp53 <- getGene(cuff_data, 'uc002gij.3')
+expressionBarplot(tp53)
