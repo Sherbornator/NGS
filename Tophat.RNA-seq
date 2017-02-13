@@ -1,0 +1,44 @@
+''' tophat manual:
+https://ccb.jhu.edu/software/tophat/manual.shtml
+
+1). Installed tophat, bowtie and boost c++
+2). Made hg19 index
+3). Pointed bowtie to index
+4). Ran tophat on QS:'''
+
+tophat /Volumes/NakamuraLAB-1/Human_exomes/RNAseq/tophat/bowtie_index/hg19 SherborneQSGlobin_S11_R1_001.fastq SherborneQSGlobin_S11_R2_001.fastq
+
+''' "-o tophat_QS" gives name of output folder
+
+tophat fusion manual:
+http://ccb.jhu.edu/software/tophat/fusion_tutorial.html'''
+
+##tophat-fusion-post
+tophat-fusion-post -p 8 --num-fusion-reads 1 --num-fusion-pairs 2 --num-fusion-both 5 /Volumes/NakamuraLAB-1/Human_exomes/RNAseq/tophat/bowtie_index/hg19
+
+
+###Submitting to the Moab job structure - ###
+###Make a job file: ###
+#!/bin/csh
+##### These lines are for Moab
+#MSUB -l nodes=16
+#MSUB -l partition=ALL
+#MSUB -l walltime=99:00:00
+#MSUB -m be
+#MSUB -V
+#MSUB -o /home/SherborneA/RNAseq
+
+##### These are shell commands
+date
+cd /home/SherborneA/RNAseq/
+tophat2 -o tophat_SS2a --fusion-search --keep-fasta-order --no-coverage-search -r 0 --mate-std-dev 80 --max-intron-length 100000 --fusion-min-dist 100000 --fusion-anchor-length 13 --fusion-ignore-chromosomes chrM bowtie_index/hg19 GC044/SherborneSsaGlobin_S12_R1_001.fastq GC044/SherborneSsaGlobin_S12_R2_001.fastq
+echo 'Done'
+
+msub name_of_job_file.sh
+
+Get job number: 226471
+showq
+checkjob - v ###
+
+cat ../GC044/SherborneQSGlobin_S11_R1_001.fastq.gz ../GC059/SherborneQSGlobin-S67_S115_L008_R1_001.fastq.gz > QS_R1_001.fastq.gz
+cat ../GC044/SherborneQSGlobin_S11_R2_001.fastq.gz ../GC059/SherborneQSGlobin-S67_S115_L008_R2_001.fastq.gz > QS_R2_001.fastq.gz
