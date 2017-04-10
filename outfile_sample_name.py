@@ -12,7 +12,7 @@ def usage():
     sys.exit()
 
 
-def parsing(MuTect1vcfFile):
+def parsing(MuTect1outFile):
         "This script parses a Mutect1 out file"
         sample = MuTect1outFile[0:17]
         #parsed lists
@@ -20,7 +20,7 @@ def parsing(MuTect1vcfFile):
         snps = []
         concatSNPs = []
 
-        vcf = open(MuTect1vcfFile)
+        vcf = open(MuTect1outFile)
         for line in vcf:
             line = line.rstrip("\n")
             line = line.split("\t")
